@@ -155,7 +155,7 @@ class Chart(object):
         so = sorted(self.series_options.items(), key=sort_fn)
         x_axis_groups = groupby(so, sort_fn)
         for (x_axis, itr1) in x_axis_groups:
-            sort_fn = lambda td_tk: dss[td_tk[1]['_x_axis_term']]['_data']
+            sort_fn = lambda td_tk: [el.items() for el in dss[td_tk[1]['_x_axis_term']]['_data']]
             itr1 = sorted(itr1, key=sort_fn)
             for _vqs_num, (_data, itr2) in enumerate(groupby(itr1, sort_fn)):
                 x_axis_vqs_groups[x_axis][_vqs_num] = _x_vqs = {}
@@ -377,7 +377,7 @@ class Chart(object):
                                         is not None else None)
                             data = sorted(data, key=sort_key)
                     else:
-                        data = y_values_multi.iteritems()
+                        data = y_values_multi.items()
                         sort_key = ((lambda x_y: x_sortf(x_y[1])) if x_sortf
                                     is not None else None)
                         data = sorted(data, key=sort_key)

@@ -6,6 +6,8 @@ from django.db.models.manager import Manager
 from django.db.models.query import QuerySet
 from django.utils import six
 
+from django_mongoengine.queryset import QuerySet as MEQuerySet
+
 from .exceptions import APIInputError
 
 
@@ -27,7 +29,8 @@ def _validate_field_lookup_term(model, term):
     """
     # TODO: Memoization for speed enchancements?
     terms = term.split('__')
-    model_fields = model._meta.get_all_field_names()
+    #model_fields = model._meta.get_all_field_names()
+    model_fields = [fld.name for fld in model._meta.get_fields()]
     if terms[0] not in model_fields:
         raise APIInputError("Field %r does not exist. Valid lookups are %s."
                             % (terms[0], ', '.join(model_fields)))
@@ -61,6 +64,8 @@ def _clean_source(source):
     elif isinstance(source, Manager):
         return source.all()
     elif isinstance(source, QuerySet):
+        return source
+    elif isinstance(source, MEQuerySet):
         return source
     raise APIInputError("'source' must either be a QuerySet, Model or "
                         "Manager. Got %s of type %s instead."
@@ -423,7 +428,7 @@ def clean_cso(series_options, ds):
                 raise APIInputError("Expecting a '_x_axis_term' for %s." % sod)
             if ds.series[sok]['_data'] != ds.series[_x_axis_term]['_data']:
                 raise APIInputError("%s and %s do not belong to the same "
-                                    "table." %(sok, _x_axis_term))
+                                     "table." %(sok, _x_axis_term))
                 sod['_data'] = ds.series[sok]['_data']
     elif isinstance(series_options, list):
         series_options = _convert_cso_to_dict(series_options)
